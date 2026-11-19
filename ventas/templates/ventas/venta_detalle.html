@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block titulo %}Venta {{ venta.folio_texto }}{% endblock %}
+{% block encabezado %}
+  <a href="{% url 'ventas:historial' %}" class="volver" aria-label="Volver al registro"><i class="bi bi-chevron-left"></i></a>
+  Venta {{ venta.folio_texto }}
+  {% if venta.estado == "CANCELADA" %}
+    <span class="badge text-bg-danger align-middle fs-6 ms-1">Cancelada</span>
+  {% else %}
+    <span class="badge text-bg-success align-middle fs-6 ms-1">Pagada</span>
+  {% endif %}
+{% endblock %}
+{% block acciones %}
+  {# RF-VEN-16: reimpresión del ticket, con la leyenda de copia #}
+  <a href="{% url 'ventas:ticket' venta.pk %}?copia=1&imprimir=1" target="_blank" rel="noopener"
+     class="btn btn-light" id="btnReimprimir">
+    <i class="bi bi-printer me-1"></i>Reimprimir
+  </a>
+  {% if venta.estado == "PAGADA" %}
+    <button type="button" class="btn btn-light text-danger" data-bs-toggle="modal" data-bs-target="#modalCancelar">
+      <i class="bi bi-x-circle me-1"></i>Cancelar venta
+    </button>
+  {% endif %}
+{% endblock %}
+{% block contenido %}
+  {% if venta.estado == "CANCELADA" %}
+    <div class="alert alert-danger d-flex gap-2 align-items-start">
+      <i class="bi bi-x-octagon-fill mt-1"></i>
+      <div>
+        <div class="fw-medium">Cancelada el {{ venta.fecha_cancelacion|fecha_hora }} por {{ venta.cancelada_por }}</div>
+        <div class="small">Motivo: {{ venta.motivo_cancelacion }}</div>
+        <div class="small">Los productos de esta venta ya regresaron al inventario.</div>
+      </div>
+    </div>
+  {% endif %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="tarjeta">
+        <h2 class="subtitulo">Productos</h2>
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="text-end">Cantidad</th>
+              <th class="text-end d-none d-sm-table-cell">Precio</th>
+              <th class="text-end">Importe</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in detalles %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-3">
+                    {% include "productos/_miniatura.html" with producto=d.producto %}
+                    <div>
+                      <a href="{% url 'productos:detalle' d.producto.pk %}" class="fw-medium text-reset text-decoration-none">{{ d.producto.nombre }}</a>
+                      {% if not d.producto.activo %}<span class="badge text-bg-secondary ms-1">Dado de baja</span>{% endif %}
+                      <div class="small text-secondary">{{ d.producto.codigo_barras|default:d.producto.sku }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-end">{{ d.cantidad }}</td>
+                <td class="text-end d-none d-sm-table-cell">{{ d.precio_unitario|pesos }}</td>
+                <td class="text-end fw-medium">{{ d.subtotal|pesos }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="small text-secondary mt-2">{{ piezas }} pieza{{ piezas|pluralize }} en {{ detalles|length }} producto{{ detalles|length|pluralize }}</div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="tarjeta mb-4">
+        <h2 class="subtitulo">Cobro</h2>
+        <dl class="ficha mb-0">
+          <dt>Fecha y hora</dt>
+          <dd>{{ venta.fecha_cobro|fecha_hora }}</dd>
+          <dt>Cajero</dt>
+          <dd>{{ venta.usuario }}</dd>
+          {% if venta.descuento %}
+            <dt>Subtotal</dt>
+            <dd>{{ venta.subtotal|pesos }}</dd>
+            <dt>Descuento</dt>
+            <dd>-{{ venta.descuento|pesos }}</dd>
+          {% endif %}
+          <dt>Total</dt>
+          <dd class="fs-4 fw-semibold">{% if venta.estado == "CANCELADA" %}<s>{{ venta.total|pesos }}</s>{% else %}{{ venta.total|pesos }}{% endif %}</dd>
+          <dt>IVA incluido ({{ negocio.tasa_impuesto|default:"16"|floatformat:"-2" }}%)</dt>
+          <dd>{{ venta.impuesto|pesos }}</dd>
+          <dt>Efectivo recibido</dt>
+          <dd>{{ venta.monto_recibido|pesos }}</dd>
+          <dt>Cambio</dt>
+          <dd>{{ venta.cambio|pesos }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  {% if venta.estado == "PAGADA" %}
+    {# RF-VEN-17: cancelar pide motivo y avisa que el inventario regresa (RNF-USA-06) #}
+    <div class="modal fade" id="modalCancelar" tabindex="-1" aria-labelledby="tituloCancelar" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <form method="post" action="{% url 'ventas:cancelar' venta.pk %}" class="modal-content app-modal" novalidate>
+          {% csrf_token %}
+          <div class="modal-body p-4">
+            <h2 class="h5 mb-2" id="tituloCancelar">¿Cancelar la venta {{ venta.folio_texto }}?</h2>
+            <p class="text-secondary small mb-3">
+              {% if piezas == 1 %}La pieza regresará{% else %}Las {{ piezas }} piezas regresarán{% endif %} al inventario y la venta dejará de contar en el total vendido.
+              Esta acción no se puede deshacer.
+            </p>
+            <label class="form-label" for="{{ form_cancelar.motivo.id_for_label }}">
+              {{ form_cancelar.motivo.label }} <span class="text-danger">*</span>
+            </label>
+            {{ form_cancelar.motivo }}
+          </div>
+          <div class="modal-footer border-0 pt-0 px-4 pb-4">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">No cancelar</button>
+            <button type="submit" class="btn btn-danger" id="btnConfirmarCancelacion" disabled>Cancelar venta</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+{% block scripts %}
+  <script>
+    (function () {
+      "use strict";
+      // Reimprime con el mismo ancho de papel que eligió la caja en este equipo
+      const reimprimir = document.getElementById("btnReimprimir");
+      reimprimir.addEventListener("click", function () {
+        let ancho = "80";
+        try { ancho = localStorage.getItem("papelTicket") || "80"; } catch (e) { /* sin almacenamiento */ }
+        const url = new URL(reimprimir.href);
+        url.searchParams.set("ancho", ancho);
+        reimprimir.href = url.toString();
+      });
+
+      // El botón de cancelar se activa hasta que hay un motivo escrito
+      const modal = document.getElementById("modalCancelar");
+      if (!modal) return;
+      const motivo = modal.querySelector("textarea");
+      const boton = document.getElementById("btnConfirmarCancelacion");
+      motivo.addEventListener("input", function () {
+        boton.disabled = motivo.value.trim() === "";
+      });
+      modal.addEventListener("shown.bs.modal", function () { motivo.focus(); });
+      modal.querySelector("form").addEventListener("submit", function () { boton.disabled = true; });
+    })();
+  </script>
+{% endblock %}

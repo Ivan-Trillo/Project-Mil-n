@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block titulo %}Inventario{% endblock %}
+{% block encabezado %}Inventario{% endblock %}
+{% block acciones %}
+  {% if puede_gestionar %}
+    <a href="{% url 'productos:categorias' %}" class="btn btn-light"><i class="bi bi-tags me-1"></i><span class="d-none d-sm-inline">Categorías</span></a>
+    <a href="{% url 'productos:nuevo' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nuevo producto</a>
+  {% endif %}
+{% endblock %}
+{% block contenido %}
+  <div class="panel">
+    {# Barra de filtros: categorías en píldoras, como la caja #}
+    <form method="get" class="barra-filtros" role="search">
+      <div class="pildoras">
+        <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}estado={{ estado }}" class="pildora{% if not categoria_id %} activa{% endif %}">Todas</a>
+        {% for categoria in categorias %}
+          <a href="?{% if q %}q={{ q|urlencode }}&{% endif %}estado={{ estado }}&categoria={{ categoria.pk }}"
+             class="pildora{% if categoria_id == categoria.pk|stringformat:'s' %} activa{% endif %}">{{ categoria.nombre }}</a>
+        {% endfor %}
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        {% if categoria_id %}<input type="hidden" name="categoria" value="{{ categoria_id }}">{% endif %}
+        {% if puede_gestionar %}
+          <select name="estado" class="form-select form-select-sm w-auto" onchange="this.form.submit()" aria-label="Estado">
+            <option value="activos" {% if estado == "activos" %}selected{% endif %}>Activos</option>
+            <option value="bajos" {% if estado == "bajos" %}selected{% endif %}>Existencia baja</option>
+            <option value="inactivos" {% if estado == "inactivos" %}selected{% endif %}>Dados de baja</option>
+            <option value="todos" {% if estado == "todos" %}selected{% endif %}>Todos</option>
+          </select>
+        {% endif %}
+        <div class="buscador">
+          <i class="bi bi-search"></i>
+          <input type="search" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Nombre, código o SKU" aria-label="Buscar producto" autofocus>
+        </div>
+      </div>
+    </form>
+    {% if total_bajos and estado != "bajos" %}
+      <a href="?estado=bajos" class="aviso-bajo">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        {{ total_bajos }} producto{{ total_bajos|pluralize }} con existencia baja
+        <i class="bi bi-chevron-right ms-auto"></i>
+      </a>
+    {% endif %}
+    {% if pagina.object_list %}
+      <table class="table align-middle mb-0 tabla-productos">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th class="d-none d-md-table-cell">Código / SKU</th>
+            <th class="d-none d-lg-table-cell">Categoría</th>
+            <th class="text-end">Precio</th>
+            <th class="text-end">Existencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pagina %}
+            <tr class="{% if not p.activo %}inactivo{% endif %}{% if puede_gestionar %} fila-enlace{% endif %}"
+                {% if puede_gestionar %}onclick="location.href='{% url 'productos:detalle' p.pk %}'"{% endif %}>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  {% include "productos/_miniatura.html" with producto=p %}
+                  <div>
+                    {% if puede_gestionar %}
+                      <a href="{% url 'productos:detalle' p.pk %}" class="fw-medium text-reset text-decoration-none">{{ p.nombre }}</a>
+                    {% else %}
+                      <span class="fw-medium">{{ p.nombre }}</span>
+                    {% endif %}
+                    {% if not p.activo %}<span class="badge text-bg-secondary ms-1">Dado de baja</span>{% endif %}
+                    <div class="small text-secondary d-md-none">{{ p.codigo_barras|default:p.sku }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="d-none d-md-table-cell small">
+                <div>{{ p.codigo_barras|default:"—" }}</div>
+                <div class="text-secondary">{{ p.sku }}</div>
+              </td>
+              <td class="d-none d-lg-table-cell small">{{ p.categoria|default:"—" }}</td>
+              <td class="text-end fw-medium">{{ p.precio_venta|pesos }}</td>
+              <td class="text-end">
+                <span class="existencia{% if p.existencia_baja %} baja{% endif %}">
+                  {% if p.existencia_baja %}<i class="bi bi-exclamation-circle-fill"></i>{% endif %}
+                  {{ p.existencia }}
+                </span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "parciales/paginacion.html" with pagina=pagina filtros=filtros %}
+    {% else %}
+      <div class="vacio">
+        <i class="bi bi-box-seam"></i>
+        {% if q or categoria_id or estado != "activos" %}
+          <p>No hay productos que coincidan con la búsqueda.</p>
+        {% else %}
+          <p>Todavía no hay productos registrados.</p>
+          {% if puede_gestionar %}<a href="{% url 'productos:nuevo' %}" class="btn btn-primary">Registrar el primero</a>{% endif %}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

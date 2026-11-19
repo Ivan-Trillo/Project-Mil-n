@@ -1,0 +1,24 @@
+# Entorno y secretos
+.venv/
+venv/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Django
+staticfiles/
+media/
+logs/*.log
+db.sqlite3
+
+# Respaldos de la base de datos
+respaldos/
+*.dump
+*.sql.gz
+
+# Sistema y editor
+.DS_Store
+.vscode/
+.idea/

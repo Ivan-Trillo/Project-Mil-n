@@ -1,0 +1,17 @@
+{% comment %}
+  Cambio contra ayer.
+  Uso: include "panel/_variacion.html" with cambio=cambio_total
+{% endcomment %}
+{% if cambio is None %}
+  <span class="variacion">Sin ventas ayer para comparar</span>
+{% elif cambio.direccion == "sube" %}
+  <span class="variacion sube">
+    <i class="bi bi-arrow-up-right"></i> {{ cambio.porcentaje }}% vs ayer
+  </span>
+{% elif cambio.direccion == "baja" %}
+  <span class="variacion baja">
+    <i class="bi bi-arrow-down-right"></i> {{ cambio.porcentaje }}% vs ayer
+  </span>
+{% else %}
+  <span class="variacion"><i class="bi bi-dash"></i> Igual que ayer</span>
+{% endif %}

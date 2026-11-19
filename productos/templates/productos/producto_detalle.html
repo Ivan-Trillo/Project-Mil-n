@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block titulo %}{{ producto.nombre }}{% endblock %}
+{% block encabezado %}
+  <a href="{% url 'productos:catalogo' %}" class="volver" aria-label="Volver al inventario"><i class="bi bi-chevron-left"></i></a>
+  {{ producto.nombre }}
+{% endblock %}
+{% block acciones %}
+  <a href="{% url 'productos:editar' producto.pk %}" class="btn btn-light"><i class="bi bi-pencil me-1"></i>Editar</a>
+  <form method="post"
+        action="{% url 'productos:estado' producto.pk %}"
+        {% if producto.activo %}data-confirmar="¿Dar de baja «{{ producto.nombre }}»? Ya no aparecerá en la caja, pero se conservará en las ventas anteriores." data-confirmar-boton="Dar de baja" data-confirmar-peligro{% endif %}>
+    {% csrf_token %}
+    {% if producto.activo %}
+      <button type="submit" class="btn btn-light text-danger"><i class="bi bi-archive me-1"></i>Dar de baja</button>
+    {% else %}
+      <button type="submit" class="btn btn-light text-success"><i class="bi bi-arrow-counterclockwise me-1"></i>Reactivar</button>
+    {% endif %}
+  </form>
+{% endblock %}
+{% block contenido %}
+  <div class="row g-4 align-items-stretch">
+    <div class="col-lg-4">
+      {# La tarjeta ocupa todo el alto de la columna derecha #}
+      <div class="tarjeta h-100">
+        <div class="text-center mb-3">{% include "productos/_miniatura.html" with producto=producto tam="lg" %}</div>
+        {% if not producto.activo %}<div class="alert alert-secondary py-2 small">Este producto está dado de baja.</div>{% endif %}
+        {# Existencias dentro de la tarjeta, así la columna derecha son solo las dos secciones #}
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="indicador{% if producto.existencia_baja %} indicador-alerta{% endif %}">
+              <span class="indicador-etiqueta">Existencia</span>
+              <span class="indicador-valor">{{ producto.existencia }}</span>
+              {% if producto.existencia_baja %}<span class="small"><i class="bi bi-exclamation-circle-fill"></i> En o bajo el mínimo</span>{% endif %}
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="indicador">
+              <span class="indicador-etiqueta">Existencia mínima</span>
+              <span class="indicador-valor">{{ producto.existencia_minima }}</span>
+            </div>
+          </div>
+        </div>
+        <dl class="ficha">
+          <dt>Precio de venta</dt>
+          <dd class="fs-5 fw-semibold">{{ producto.precio_venta|pesos }}</dd>
+          <dt>Costo</dt>
+          <dd>{{ producto.costo|pesos }}</dd>
+          <dt>Código de barras</dt>
+          <dd>{{ producto.codigo_barras|default:"—" }}</dd>
+          <dt>SKU</dt>
+          <dd>{{ producto.sku }}</dd>
+          <dt>Categoría</dt>
+          <dd>{{ producto.categoria|default:"—" }}</dd>
+          <dt>Proveedor</dt>
+          <dd>{{ producto.proveedor|default:"—" }}</dd>
+          {% if producto.descripcion %}
+            <dt>Descripción</dt>
+            <dd>{{ producto.descripcion|linebreaksbr }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+    {# Columna derecha en flex: el historial crece para terminar a la misma altura que la tarjeta izquierda #}
+    <div class="col-lg-8 d-flex flex-column">
+      <div class="tarjeta mb-4">
+        <h2 class="subtitulo">Registrar entrada o ajuste</h2>
+        <form method="post" action="{% url 'productos:movimiento' producto.pk %}" novalidate>
+          {% csrf_token %}
+          <div class="row g-3 align-items-start">
+            {% include "parciales/campo.html" with campo=form_movimiento.tipo col="col-md-4" %}
+            {% include "parciales/campo.html" with campo=form_movimiento.cantidad col="col-md-3" %}
+            {% include "parciales/campo.html" with campo=form_movimiento.motivo col="col-md-5" %}
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Registrar movimiento</button>
+        </form>
+      </div>
+      <div class="tarjeta flex-grow-1">
+        <h2 class="subtitulo">Historial de movimientos</h2>
+        {% if pagina.object_list %}
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th class="text-end">Cantidad</th>
+                <th class="text-end">Existencia</th>
+                <th class="d-none d-md-table-cell ps-4">Usuario</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in pagina %}
+                <tr>
+                  <td class="small">{{ m.fecha|fecha_hora }}</td>
+                  <td>
+                    {{ m.get_tipo_display }}
+                    {% if m.venta %}<span class="small text-secondary">· folio {{ m.venta.folio_texto }}</span>{% endif %}
+                    {% if m.motivo %}<div class="small text-secondary">{{ m.motivo }}</div>{% endif %}
+                  </td>
+                  <td class="text-end fw-medium {% if m.cantidad > 0 %}text-success{% else %}text-danger{% endif %}">
+                    {% if m.cantidad > 0 %}+{% endif %}{{ m.cantidad }}
+                  </td>
+                  <td class="text-end">{{ m.existencia_resultante }}</td>
+                  <td class="d-none d-md-table-cell small ps-4">{{ m.usuario }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% include "parciales/paginacion.html" with pagina=pagina %}
+        {% else %}
+          <p class="text-secondary mb-0">Este producto todavía no tiene movimientos.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

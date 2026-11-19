@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Configuración del negocio{% endblock %}
+{% block encabezado %}Configuración del negocio{% endblock %}
+{% block contenido %}
+  <div class="tarjeta" style="max-width: 760px;">
+    {% if es_primera_vez %}
+      <div class="alert alert-info">
+        <strong>Bienvenido.</strong> Antes de empezar a vender, captura los datos de tu negocio. Aparecerán en el encabezado de los tickets.
+      </div>
+    {% endif %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+      <h2 class="h6 text-secondary text-uppercase mb-3">Datos del negocio</h2>
+      <div class="row g-3 mb-4">
+        {% include "configuracion/_campo.html" with campo=form.nombre_comercial col="col-md-6" %}
+        {% include "configuracion/_campo.html" with campo=form.razon_social col="col-md-6" %}
+        {% include "configuracion/_campo.html" with campo=form.rfc col="col-md-4" %}
+        {% include "configuracion/_campo.html" with campo=form.telefono col="col-md-4" %}
+        {% include "configuracion/_campo.html" with campo=form.direccion col="col-12" %}
+      </div>
+      <h2 class="h6 text-secondary text-uppercase mb-3">Ventas y ticket</h2>
+      <div class="row g-3 mb-4">
+        {% include "configuracion/_campo.html" with campo=form.tasa_impuesto col="col-md-4" %}
+        {% include "configuracion/_campo.html" with campo=form.mensaje_ticket col="col-md-8" %}
+      </div>
+      <button type="submit" class="btn btn-primary">
+        {% if es_primera_vez %}
+          Guardar y continuar
+        {% else %}
+          Guardar cambios
+        {% endif %}
+      </button>
+    </form>
+  </div>
+{% endblock %}

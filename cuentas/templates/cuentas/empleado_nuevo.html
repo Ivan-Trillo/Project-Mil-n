@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Nuevo empleado{% endblock %}
+{% block encabezado %}
+  <a href="{% url 'cuentas:usuarios' %}" class="volver" aria-label="Volver a empleados"><i class="bi bi-chevron-left"></i></a>
+  Nuevo empleado
+{% endblock %}
+{% block contenido %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="tarjeta" style="max-width: 760px;">
+      <h2 class="subtitulo">Datos</h2>
+      <div class="row g-3">
+        {% include "parciales/campo.html" with campo=form.first_name col="col-md-6" %}
+        {% include "parciales/campo.html" with campo=form.last_name col="col-md-6" %}
+        {% include "parciales/campo.html" with campo=form.username col="col-md-6" %}
+        {% include "parciales/campo.html" with campo=form.rol col="col-md-6" %}
+        {% include "parciales/campo.html" with campo=form.email col="col-12" %}
+      </div>
+      <h2 class="subtitulo mt-4">Acceso</h2>
+      <div class="row g-3">
+        {% include "parciales/campo.html" with campo=form.password1 col="col-md-6" %}
+        {% include "parciales/campo.html" with campo=form.password2 col="col-md-6" %}
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">Dar de alta</button>
+        <a href="{% url 'cuentas:usuarios' %}" class="btn btn-link text-secondary">Cancelar</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}

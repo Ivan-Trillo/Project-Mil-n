@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block titulo %}Registro{% endblock %}
+{% block encabezado %}Registro{% endblock %}
+{% block contenido %}
+  {# Resumen del periodo filtrado. Las ventas canceladas no suman al total vendido #}
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="indicador">
+        <span class="indicador-etiqueta">Ventas</span>
+        <span class="indicador-valor">{{ resumen.num_ventas }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="indicador">
+        <span class="indicador-etiqueta">Total vendido</span>
+        <span class="indicador-valor">{{ resumen.total|pesos }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="indicador">
+        <span class="indicador-etiqueta">Ticket promedio</span>
+        <span class="indicador-valor">{{ resumen.promedio|pesos }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="indicador{% if resumen.num_canceladas %} indicador-alerta{% endif %}">
+        <span class="indicador-etiqueta">Canceladas</span>
+        <span class="indicador-valor">{{ resumen.num_canceladas }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <form method="get" class="barra-filtros" role="search">
+      <div class="pildoras">
+        {% for clave, texto in periodos %}
+          <a href="?periodo={{ clave }}{% if cajero_id %}&cajero={{ cajero_id }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}"
+             class="pildora{% if not q and periodo == clave %} activa{% endif %}">{{ texto }}</a>
+        {% endfor %}
+      </div>
+      <div class="d-flex gap-2 flex-wrap align-items-center">
+        <input type="date" name="desde" value="{{ desde|date:'Y-m-d' }}" max="{{ hoy|date:'Y-m-d' }}"
+               class="form-control form-control-sm w-auto" aria-label="Desde" title="Desde">
+        <input type="date" name="hasta" value="{{ hasta|date:'Y-m-d' }}" max="{{ hoy|date:'Y-m-d' }}"
+               class="form-control form-control-sm w-auto" aria-label="Hasta" title="Hasta">
+        <select name="cajero" class="form-select form-select-sm w-auto" onchange="this.form.submit()" aria-label="Cajero">
+          <option value="">Todos los cajeros</option>
+          {% for c in cajeros %}
+            <option value="{{ c.pk }}" {% if cajero_id == c.pk|stringformat:'s' %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+        <select name="estado" class="form-select form-select-sm w-auto" onchange="this.form.submit()" aria-label="Estado">
+          <option value="" {% if not estado %}selected{% endif %}>Pagadas y canceladas</option>
+          <option value="pagadas" {% if estado == "pagadas" %}selected{% endif %}>Solo pagadas</option>
+          <option value="canceladas" {% if estado == "canceladas" %}selected{% endif %}>Solo canceladas</option>
+        </select>
+        {% if periodo != "rango" and not desde and not hasta %}<input type="hidden" name="periodo" value="{{ periodo }}">{% endif %}
+        <div class="buscador">
+          <i class="bi bi-search"></i>
+          <input type="search" name="q" value="{{ q }}" inputmode="numeric" class="form-control form-control-sm"
+                 placeholder="Buscar por folio" aria-label="Buscar por folio">
+        </div>
+        <button type="submit" class="btn btn-sm btn-light">Filtrar</button>
+      </div>
+    </form>
+
+    {% if q %}
+      <p class="small text-secondary mb-2">
+        Resultado del folio «{{ q }}» en todas las fechas.
+        <a href="?periodo={{ periodo }}">Quitar búsqueda</a>
+      </p>
+    {% elif periodo == "rango" %}
+      <p class="small text-secondary mb-2">
+        {% if desde and hasta %}Del {{ desde|date:"d/m/Y" }} al {{ hasta|date:"d/m/Y" }}.
+        {% elif desde %}Desde el {{ desde|date:"d/m/Y" }}.
+        {% else %}Hasta el {{ hasta|date:"d/m/Y" }}.{% endif %}
+        <a href="?periodo=hoy">Volver a hoy</a>
+      </p>
+    {% endif %}
+
+    {% if pagina.object_list %}
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Fecha</th>
+            <th class="d-none d-md-table-cell">Cajero</th>
+            <th class="text-end d-none d-sm-table-cell">Piezas</th>
+            <th class="text-end">Total</th>
+            <th class="text-end">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in pagina %}
+            <tr class="fila-enlace{% if v.estado == 'CANCELADA' %} inactivo{% endif %}" onclick="location.href='{% url 'ventas:detalle' v.pk %}'">
+              <td>
+                <a href="{% url 'ventas:detalle' v.pk %}" class="fw-medium text-reset text-decoration-none">{{ v.folio_texto }}</a>
+              </td>
+              <td class="small">{{ v.fecha_cobro|fecha_hora }}</td>
+              <td class="d-none d-md-table-cell small">{{ v.usuario }}</td>
+              <td class="text-end d-none d-sm-table-cell">{{ v.piezas|default:0 }}</td>
+              <td class="text-end fw-medium">
+                {% if v.estado == "CANCELADA" %}<s>{{ v.total|pesos }}</s>{% else %}{{ v.total|pesos }}{% endif %}
+              </td>
+              <td class="text-end">
+                {% if v.estado == "CANCELADA" %}
+                  <span class="badge text-bg-danger">Cancelada</span>
+                {% else %}
+                  <span class="badge text-bg-success">Pagada</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "parciales/paginacion.html" with pagina=pagina filtros=filtros %}
+    {% else %}
+      <div class="vacio">
+        <i class="bi bi-receipt"></i>
+        <p>
+          {% if q %}
+            No hay ninguna venta con el folio «{{ q }}».
+          {% else %}
+            No hay ventas en este periodo.
+          {% endif %}
+        </p>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

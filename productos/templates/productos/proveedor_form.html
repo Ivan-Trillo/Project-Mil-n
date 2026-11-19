@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}{% if proveedor %}Editar proveedor{% else %}Nuevo proveedor{% endif %}{% endblock %}
+{% block encabezado %}
+  <a href="{% url 'proveedores:lista' %}" class="volver" aria-label="Volver a proveedores"><i class="bi bi-chevron-left"></i></a>
+  {% if proveedor %}
+    {{ proveedor.nombre }}
+  {% else %}
+    Nuevo proveedor
+  {% endif %}
+{% endblock %}
+{% block contenido %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="tarjeta" style="max-width: 760px;">
+      <div class="row g-3">
+        {% include "parciales/campo.html" with campo=form.nombre col="col-md-8" %}
+        {% include "parciales/campo.html" with campo=form.rfc col="col-md-4" %}
+        {% include "parciales/campo.html" with campo=form.contacto col="col-md-6" %}
+        {% include "parciales/campo.html" with campo=form.telefono col="col-md-6" %}
+        {% include "parciales/campo.html" with campo=form.correo col="col-12" %}
+        {% include "parciales/campo.html" with campo=form.notas col="col-12" %}
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{% url 'proveedores:lista' %}" class="btn btn-link text-secondary">Cancelar</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}

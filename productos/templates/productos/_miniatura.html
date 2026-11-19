@@ -1,0 +1,6 @@
+{# Foto del producto o sus iniciales si no tiene. Uso: include con producto=p tam="sm|lg" #}
+{% if producto.imagen %}
+  <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="miniatura miniatura-{{ tam|default:'sm' }}">
+{% else %}
+  <span class="miniatura miniatura-{{ tam|default:'sm' }} miniatura-vacia" aria-hidden="true">{{ producto.nombre|slice:":2"|upper }}</span>
+{% endif %}

@@ -1,0 +1,9 @@
+<div class="{{ col }}">
+  <label class="form-label" for="{{ campo.id_for_label }}">
+    {{ campo.label|capfirst }}
+    {% if campo.field.required %}<span class="text-danger">*</span>{% endif %}
+  </label>
+  {{ campo }}
+  {% for error in campo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+  {% if campo.help_text and not campo.errors %}<div class="form-text">{{ campo.help_text }}</div>{% endif %}
+</div>

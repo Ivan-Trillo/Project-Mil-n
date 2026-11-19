@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}{% if producto %}Editar producto{% else %}Nuevo producto{% endif %}{% endblock %}
+{% block encabezado %}
+  {% if producto %}
+    Editar «{{ producto.nombre }}»
+  {% else %}
+    Nuevo producto
+  {% endif %}
+{% endblock %}
+{% block contenido %}
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="tarjeta">
+          <h2 class="subtitulo">Datos del producto</h2>
+          <div class="row g-3">
+            {% include "parciales/campo.html" with campo=form.nombre col="col-12" %}
+            {% include "parciales/campo.html" with campo=form.codigo_barras col="col-md-7" %}
+            {% include "parciales/campo.html" with campo=form.sku col="col-md-5" %}
+            {% include "parciales/campo.html" with campo=form.categoria col="col-md-6" %}
+            {% include "parciales/campo.html" with campo=form.proveedor col="col-md-6" %}
+            {% include "parciales/campo.html" with campo=form.descripcion col="col-12" %}
+          </div>
+          <h2 class="subtitulo mt-4">Precio e inventario</h2>
+          <div class="row g-3">
+            {% include "parciales/campo.html" with campo=form.precio_venta col="col-sm-6 col-md-3" %}
+            {% include "parciales/campo.html" with campo=form.costo col="col-sm-6 col-md-3" %}
+            {% if form.existencia %}
+              {% include "parciales/campo.html" with campo=form.existencia col="col-sm-6 col-md-3" %}
+            {% endif %}
+            {% include "parciales/campo.html" with campo=form.existencia_minima col="col-sm-6 col-md-3" %}
+          </div>
+          {% if producto %}
+            <p class="form-text mt-2 mb-0">
+              La existencia se modifica con una entrada o un ajuste desde la ficha del producto, así queda registrada en el historial.
+            </p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="tarjeta text-center">
+          <h2 class="subtitulo text-start">Foto</h2>
+          {% if producto %}
+            <div class="mb-3">{% include "productos/_miniatura.html" with producto=producto tam="lg" %}</div>
+          {% endif %}
+          {{ form.imagen }}
+          {% for error in form.imagen.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+          <div class="form-text">Opcional. Se muestra en la caja.</div>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-primary">Guardar</button>
+      {% if not producto %}
+        <button type="submit" name="otro" value="1" class="btn btn-light">Guardar y registrar otro</button>
+      {% endif %}
+      <a href="{% if producto %}{% url 'productos:detalle' producto.pk %}{% else %}{% url 'productos:catalogo' %}{% endif %}" class="btn btn-link text-secondary">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

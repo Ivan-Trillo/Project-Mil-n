@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block titulo %}Caja{% endblock %}
+{% block clase_body %}pantalla-caja{% endblock %}
+{% block encabezado_completo %}{% endblock %}
+{% block contenido %}
+  {% csrf_token %}
+  {{ estado_inicial|json_script:"estado-inicial" }}
+  <div class="caja"
+       id="caja"
+       data-url-estado="{% url 'ventas:api_estado' %}"
+       data-url-productos="{% url 'ventas:api_productos' %}"
+       data-url-tickets="{% url 'ventas:api_nuevo_ticket' %}"
+       data-url-base="/ventas/caja/api/tickets/"
+       data-url-ticket="/ventas/0/ticket/">
+    {# ================= Columna del ticket ================= #}
+    <section class="caja-izquierda" aria-label="Ticket">
+      {# Pestañas de tickets abiertos (RF-VEN-09) #}
+      <div class="pestanas-ticket" id="pestanas" role="tablist"></div>
+      <div class="tarjeta-ticket" id="tarjetaTicket">
+        <div class="ticket-encabezado">
+          <h2 class="ticket-titulo">Ticket <span id="numeroTicket" class="text-secondary fw-normal"></span></h2>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-link text-secondary"
+                    data-bs-toggle="dropdown"
+                    aria-label="Opciones del ticket">
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end app-menu-cuenta">
+              <li>
+                <button class="dropdown-item" type="button" id="btnNuevoTicket">
+                  <i class="bi bi-plus-lg me-2"></i>Nuevo ticket
+                </button>
+              </li>
+              <li>
+                <button class="dropdown-item text-danger" type="button" id="btnDescartar">
+                  <i class="bi bi-trash me-2"></i>Descartar ticket
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <button class="ticket-resumen" type="button" id="btnPlegarLista" aria-expanded="true">
+          <span>Productos</span>
+          <span class="text-secondary"><span id="numLineas">0</span> en lista <i class="bi bi-chevron-down"></i></span>
+        </button>
+        <div class="ticket-lineas" id="lineas"></div>
+        <div class="ticket-vacio" id="ticketVacio">
+          Toca un producto para agregarlo a la lista
+        </div>
+        <div class="ticket-totales" id="totales">
+          <button class="ticket-total" type="button" id="btnDesglose" aria-expanded="false">
+            <span>Total</span>
+            <span><span id="total">$0.00</span> <i class="bi bi-chevron-down"></i></span>
+          </button>
+          <div class="ticket-desglose" id="desglose" hidden>
+            <div>
+              <span>Subtotal</span><span id="subtotal">$0.00</span>
+            </div>
+            <div>
+              <button type="button" class="btn btn-link p-0 text-decoration-none" id="btnDescuento">Descuento <i class="bi bi-pencil-square"></i></button>
+              <span id="descuento">$0.00</span>
+            </div>
+            <div class="fw-semibold">
+              <span>Total</span><span id="total2">$0.00</span>
+            </div>
+            <div class="small text-secondary">
+              <span>IVA incluido</span><span id="impuesto">$0.00</span>
+            </div>
+          </div>
+        </div>
+        <div class="ticket-espacio"></div>
+        <div class="ticket-botones">
+          <button class="btn btn-light" type="button" id="btnGuardar" title="Guardar como pendiente y abrir otro ticket">Guardar</button>
+          <button class="btn btn-primary" type="button" id="btnCobrar" title="Cobrar (F2)">Cobrar</button>
+        </div>
+      </div>
+      {# Panel de venta que aparece al presionar Cobrar #}
+      <div class="tarjeta-venta" id="tarjetaVenta" hidden>
+        <h2 class="ticket-titulo mb-2">Venta</h2>
+        <div class="metodo-pago activo">
+          <span><i class="bi bi-cash-coin me-2"></i>Efectivo</span>
+          <div class="form-check form-switch m-0">
+            <input class="form-check-input" type="checkbox" role="switch" checked disabled aria-label="Pago en efectivo">
+          </div>
+        </div>
+        <button type="button" class="btn btn-link text-danger text-decoration-none px-0" id="btnCancelarCobro">
+          <i class="bi bi-x-circle-fill me-1"></i>Cancelar
+        </button>
+      </div>
+    </section>
+    {# ================= Panel de productos ================= #}
+    <section class="caja-derecha" aria-label="Productos">
+      <div class="caja-barra">
+        <div class="pildoras" id="categorias">
+          <button type="button" class="pildora activa" data-categoria="">Todos</button>
+          {% for c in categorias %}
+            <button type="button" class="pildora" data-categoria="{{ c.pk }}">{{ c.nombre }}</button>
+          {% endfor %}
+        </div>
+        <div class="buscador buscador-caja">
+          <i class="bi bi-upc-scan"></i>
+          <input type="text"
+                 id="codigo"
+                 class="form-control"
+                 placeholder="Escanea o busca un producto"
+                 autocomplete="off"
+                 aria-label="Código de barras o nombre del producto"
+                 autofocus>
+        </div>
+      </div>
+      <h2 class="caja-titulo" id="tituloGrid">Todos</h2>
+      <div class="grid-productos" id="gridProductos"></div>
+      <p class="caja-ayuda">
+        <kbd>Enter</kbd> agrega · <kbd>3*código</kbd> agrega varios · <kbd>F2</kbd> cobrar · <kbd>Esc</kbd> cerrar
+      </p>
+    </section>
+    {# ================= Ventanas flotantes ================= #}
+    {# Editar línea (Cambiar / Borrar) #}
+    <div class="flotante editor-linea" id="editorLinea" hidden>
+      <div class="editor-info">
+        <div class="editor-nombre" id="editorNombre"></div>
+        <div class="editor-dato" id="editorCategoria"></div>
+        <div class="editor-dato" id="editorExistencia"></div>
+        <div class="editor-fila">
+          <div class="editor-cantidad">
+            <label for="editorCantidad">Cantidad</label>
+            <div class="editor-campo">
+              <input type="text"
+                     inputmode="numeric"
+                     pattern="[0-9]*"
+                     id="editorCantidad"
+                     autocomplete="off"
+                     placeholder="1">
+              <span id="editorPiezas">pieza</span>
+            </div>
+          </div>
+          <div class="editor-botones">
+            <button type="button" id="editorMas" aria-label="Una más"><i class="bi bi-plus-lg"></i></button>
+            <button type="button" id="editorMenos" aria-label="Una menos"><i class="bi bi-dash-lg"></i></button>
+          </div>
+        </div>
+        <button type="button" class="editor-eliminar" id="editorEliminar">
+          <span>Eliminar</span>
+          <i class="bi bi-trash3"></i>
+        </button>
+      </div>
+      <div class="editor-foto" id="editorFoto"></div>
+    </div>
+    {# Cobro en efectivo (RF-VEN-11 y RF-VEN-12) #}
+    <form class="flotante flotante-cobro" id="panelCobro" hidden novalidate>
+      <div class="d-flex justify-content-between align-items-baseline">
+        <span class="fw-semibold">Total</span>
+        <span class="fs-5 fw-semibold" id="cobroTotal">$0.00</span>
+      </div>
+      <div class="small text-secondary mb-3" id="cobroPiezas"></div>
+      <div class="cobro-caja">
+        <label class="small fw-medium" for="cobroRecibido">Efectivo</label>
+        <input type="text" inputmode="decimal" class="form-control form-control-lg cobro-input" id="cobroRecibido" placeholder="Ingresar cantidad" autocomplete="off">
+        <div class="cobro-rapido" id="cobroRapido"></div>
+      </div>
+      <div class="cobro-caja mt-2">
+        <span class="small fw-medium">Cambio</span>
+        <span class="fs-5" id="cobroCambio">$0.00</span>
+      </div>
+      <div class="text-danger small mt-2" id="cobroError" hidden></div>
+      <button type="submit" class="btn btn-primary w-100 mt-3" id="btnConfirmar">Confirmar venta</button>
+    </form>
+  </div>
+  {# Resultado de la venta #}
+  <div class="modal" id="modalExito" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content app-modal text-center p-4">
+        <p class="fw-semibold mb-3">Venta realizada con éxito</p>
+        <i class="bi bi-check-circle icono-resultado text-success"></i>
+        <div class="my-3">
+          <div class="small text-secondary">Folio <span id="exitoFolio"></span></div>
+          <div class="small text-secondary">Cambio</div>
+          <div class="fs-2 fw-semibold" id="exitoCambio">$0.00</div>
+        </div>
+        <div class="btn-group btn-group-sm mb-3" role="group" aria-label="Ancho del papel">
+          <input type="radio" class="btn-check" name="papel" id="papel58" value="58">
+          <label class="btn btn-outline-secondary" for="papel58">58 mm</label>
+          <input type="radio" class="btn-check" name="papel" id="papel80" value="80" checked>
+          <label class="btn btn-outline-secondary" for="papel80">80 mm</label>
+        </div>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-light" id="btnImprimir"><i class="bi bi-printer me-1"></i>Imprimir ticket</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Nueva venta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="modalError" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content app-modal text-center p-4">
+        <p class="fw-semibold mb-3">Al parecer hubo un error</p>
+        <i class="bi bi-exclamation-octagon icono-resultado text-danger"></i>
+        <p class="text-secondary small my-3" id="errorMensaje"></p>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Entendido</button>
+      </div>
+    </div>
+  </div>
+  {# Avisos rápidos (producto no encontrado, sin existencia…) #}
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast align-items-center border-0"
+         id="aviso"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="avisoTexto"></div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+  {# Aquí se carga el ticket para imprimirlo sin salir de la caja #}
+  <iframe id="marcoImpresion" title="Impresión del ticket" class="marco-impresion" aria-hidden="true" tabindex="-1"></iframe>
+{% endblock %}
+{% block scripts %}
+  <script src="{% static 'js/caja.js' %}?v={{ v }}"></script>
+{% endblock %}

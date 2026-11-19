@@ -1,0 +1,11 @@
+{# Insignias de estado. Uso: {% include "cuentas/_estado_empleado.html" with e=empleado %} #}
+{% if not e.is_active %}
+  <span class="badge text-bg-secondary">Inactivo</span>
+{% elif e.esta_bloqueado %}
+  <span class="badge text-bg-warning"><i class="bi bi-lock-fill"></i> Bloqueado</span>
+{% else %}
+  <span class="badge text-bg-success">Activo</span>
+{% endif %}
+{% if e.is_active and e.debe_cambiar_password %}
+  <span class="badge text-bg-light border" title="Debe cambiar su contraseña al entrar">Contraseña temporal</span>
+{% endif %}

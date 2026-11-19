@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block titulo %}Dashboard{% endblock %}
+{% block encabezado %}Dashboard{% endblock %}
+{% block acciones %}
+  <span class="text-secondary small">Hoy, {{ hoy|date:"l j \d\e F"|lower }}</span>
+{% endblock %}
+{% block contenido %}
+  {# Cifras del día. Solo cuentan las ventas pagadas #}
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="indicador indicador-tarjeta h-100">
+        <span class="indicador-etiqueta">Vendido hoy</span>
+        <span class="indicador-valor">{{ resumen.total|pesos }}</span>
+        {% include "panel/_variacion.html" with cambio=cambio_total %}
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="indicador indicador-tarjeta h-100">
+        <span class="indicador-etiqueta">Ventas hoy</span>
+        <span class="indicador-valor">{{ resumen.num_ventas }}</span>
+        {% include "panel/_variacion.html" with cambio=cambio_ventas %}
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="indicador indicador-tarjeta h-100">
+        <span class="indicador-etiqueta">Ticket promedio</span>
+        <span class="indicador-valor">{{ resumen.promedio|pesos }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="indicador indicador-tarjeta h-100">
+        <span class="indicador-etiqueta">Piezas vendidas</span>
+        <span class="indicador-valor">{{ resumen.piezas }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="tarjeta h-100">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+          <div>
+            <h2 class="subtitulo mb-1">Ventas por día</h2>
+            <div class="small text-secondary">
+              {{ total_periodo|pesos }} en {{ ventas_periodo }} venta{{ ventas_periodo|pluralize }}
+            </div>
+          </div>
+          <div class="pildoras">
+            {% for clave, texto in periodos %}
+              <a href="?periodo={{ clave }}" class="pildora{% if periodo == clave %} activa{% endif %}">{{ texto }}</a>
+            {% endfor %}
+          </div>
+        </div>
+        {% if ventas_periodo %}
+          {# Gráfica de barras hecha con HTML y CSS, sin librerías externas #}
+          <div class="grafica{% if dias|length > 10 %} grafica-densa{% endif %}" role="img"
+               aria-label="Ventas por día, del {{ dias.0.dia|date:'d/m/Y' }} al {{ hoy|date:'d/m/Y' }}">
+            {% for d in dias %}
+              <div class="grafica-columna" tabindex="0"
+                   data-tooltip="{{ d.dia|date:'D j M' }}: {{ d.total|pesos }} · {{ d.num_ventas }} venta{{ d.num_ventas|pluralize }}">
+                <div class="grafica-area">
+                  {% if d.es_maximo %}<span class="grafica-valor">{{ d.total|pesos }}</span>{% endif %}
+                  <div class="grafica-barra{% if d.dia == hoy %} hoy{% endif %}" style="height: {{ d.altura }}%"></div>
+                </div>
+                <span class="grafica-etiqueta">{% if dias|length > 10 %}{{ d.dia|date:"j" }}{% else %}{{ d.dia|date:"D j" }}{% endif %}</span>
+              </div>
+            {% endfor %}
+          </div>
+          {# La misma información en tabla, para lectores de pantalla #}
+          <table class="visually-hidden">
+            <caption>Ventas por día</caption>
+            <thead><tr><th>Día</th><th>Total</th><th>Ventas</th></tr></thead>
+            <tbody>
+              {% for d in dias %}<tr><td>{{ d.dia|date:"d/m/Y" }}</td><td>{{ d.total|pesos }}</td><td>{{ d.num_ventas }}</td></tr>{% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="vacio">
+            <i class="bi bi-bar-chart"></i>
+            <p>Todavía no hay ventas en este periodo.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="tarjeta h-100">
+        <h2 class="subtitulo">Más vendidos</h2>
+        {% if mas_vendidos %}
+          <ol class="lista-panel lista-numerada">
+            {% for p in mas_vendidos %}
+              <li>
+                <a href="{% url 'productos:detalle' p.producto_id %}" class="text-reset text-decoration-none fw-medium">{{ p.producto__nombre }}</a>
+                <span class="ms-auto text-end">
+                  <span class="fw-medium">{{ p.piezas }} pz</span>
+                  <span class="d-block small text-secondary">{{ p.importe|pesos }}</span>
+                </span>
+              </li>
+            {% endfor %}
+          </ol>
+        {% else %}
+          <p class="text-secondary mb-0">Sin ventas en este periodo.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="tarjeta h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="subtitulo mb-0">Existencia baja</h2>
+          {% if total_bajos %}<span class="badge rounded-pill text-bg-warning">{{ total_bajos }}</span>{% endif %}
+        </div>
+        {% if bajos %}
+          <ul class="lista-panel">
+            {% for p in bajos %}
+              <li>
+                <a href="{% url 'productos:detalle' p.pk %}" class="text-reset text-decoration-none">{{ p.nombre }}</a>
+                <span class="ms-auto existencia baja" title="Mínimo {{ p.existencia_minima }}">
+                  <i class="bi bi-exclamation-circle-fill"></i> {{ p.existencia }} / {{ p.existencia_minima }}
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+          {% if total_bajos > bajos|length %}
+            <a href="{% url 'productos:catalogo' %}?estado=bajos" class="small">Ver los {{ total_bajos }} productos</a>
+          {% else %}
+            <a href="{% url 'productos:catalogo' %}?estado=bajos" class="small">Ir al inventario</a>
+          {% endif %}
+        {% else %}
+          <p class="text-secondary mb-0">Todos los productos están arriba de su mínimo</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="tarjeta h-100">
+        <h2 class="subtitulo">Ventas de hoy por cajero</h2>
+        {% if por_cajero %}
+          <ul class="lista-panel">
+            {% for c in por_cajero %}
+              <li>
+                <span>{% if c.usuario__first_name %}{{ c.usuario__first_name }} {{ c.usuario__last_name }}{% else %}{{ c.usuario__username }}{% endif %}</span>
+                <span class="ms-auto text-end">
+                  <span class="fw-medium">{{ c.total|pesos }}</span>
+                  <span class="d-block small text-secondary">{{ c.num_ventas }} venta{{ c.num_ventas|pluralize }}</span>
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-secondary mb-0">Hoy todavía no hay ventas</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="tarjeta h-100">
+        <h2 class="subtitulo">Últimas ventas</h2>
+        {% if ultimas %}
+          <ul class="lista-panel">
+            {% for v in ultimas %}
+              <li>
+                <a href="{% url 'ventas:detalle' v.pk %}" class="text-reset text-decoration-none">
+                  <span class="fw-medium">{{ v.folio_texto }}</span>
+                  <span class="d-block small text-secondary">{{ v.fecha_cobro|fecha_hora }}</span>
+                </a>
+                <span class="ms-auto text-end">
+                  {% if v.estado == "CANCELADA" %}
+                    <s class="text-secondary">{{ v.total|pesos }}</s>
+                    <span class="d-block small text-danger">Cancelada</span>
+                  {% else %}
+                    <span class="fw-medium">{{ v.total|pesos }}</span>
+                  {% endif %}
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+          <a href="{% url 'ventas:historial' %}" class="small">Ver el registro completo</a>
+        {% else %}
+          <p class="text-secondary mb-0">Todavía no hay ventas.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

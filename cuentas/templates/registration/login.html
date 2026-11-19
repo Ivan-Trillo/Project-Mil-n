@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión</title>
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sistema.css' %}?v={{ v }}">
+  </head>
+  <body class="pantalla-acceso">
+    <main class="tarjeta-acceso">
+      <div class="text-center mb-4">
+        <h1 class="h4 mb-1">Bienvenido</h1>
+        <p class="text-secondary mb-0">Inicia sesión para continuar</p>
+      </div>
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2" role="alert">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+          {{ form.username }}
+        </div>
+        <div class="mb-4">
+          <label class="form-label" for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+          {{ form.password }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-100">Entrar</button>
+      </form>
+    </main>
+  </body>
+</html>

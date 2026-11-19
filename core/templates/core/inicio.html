@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block encabezado %}Inicio{% endblock %}
+{% block contenido %}
+  <div class="tarjeta">
+    <h2 class="h5">Hola, {{ user.first_name|default:user.username }}</h2>
+    <p class="text-secondary mb-3">Hoy es {% now "d/m/Y" %}. Elige un módulo en el menú para empezar</p>
+    <div class="row g-3">
+      <div class="col-sm-6 col-xl-3">
+        <div class="indicador">
+          <span class="indicador-etiqueta">Ejemplo de importe</span>
+          <span class="indicador-valor">{{ 1234.5|pesos }}</span>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="indicador">
+          <span class="indicador-etiqueta">Tu rol</span>
+          <span class="indicador-valor">{{ user.rol|default:"Sin rol" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

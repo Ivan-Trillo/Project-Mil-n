@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ticket {{ venta.folio_texto }}</title>
+    <style>
+      /* RNF-INT-08: papel térmico de 58 u 80 mm */
+      @page { size: {{ ancho }}mm auto; margin: 0; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+        font-size: {% if ancho == "58" %}10px{% else %}12px{% endif %};
+        color: #000;
+        background: #f2f2f2;
+      }
+      .ticket {
+        width: {{ ancho }}mm;
+        margin: 16px auto;
+        padding: 4mm 3mm 6mm;
+        background: #fff;
+      }
+      .centro { text-align: center; }
+      .negocio { font-size: 1.3em; font-weight: bold; }
+      .separador { border-top: 1px dashed #000; margin: 6px 0; }
+      table { width: 100%; border-collapse: collapse; }
+      td { vertical-align: top; padding: 1px 0; }
+      .der { text-align: right; white-space: nowrap; }
+      .total td { font-size: 1.25em; font-weight: bold; padding-top: 4px; }
+      .cancelada { border: 2px solid #000; padding: 4px; margin: 6px 0; font-weight: bold; text-align: center; }
+      .acciones { text-align: center; margin: 12px; font-family: -apple-system, sans-serif; }
+      .acciones a, .acciones button { margin: 0 4px; font-size: 14px; }
+      @media print {
+        body { background: #fff; }
+        .ticket { margin: 0; }
+        .acciones { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ticket">
+      <div class="centro">
+        <div class="negocio">{{ negocio.nombre_comercial|default:"Punto de venta" }}</div>
+        {% if negocio.razon_social %}<div>{{ negocio.razon_social }}</div>{% endif %}
+        {% if negocio.rfc %}<div>RFC: {{ negocio.rfc }}</div>{% endif %}
+        {% if negocio.direccion %}<div>{{ negocio.direccion }}</div>{% endif %}
+        {% if negocio.telefono %}<div>Tel. {{ negocio.telefono }}</div>{% endif %}
+      </div>
+      <div class="separador"></div>
+      <table>
+        <tr>
+          <td>Folio</td>
+          <td class="der">{{ venta.folio_texto }}</td>
+        </tr>
+        <tr>
+          <td>Fecha</td>
+          <td class="der">{{ venta.fecha_cobro|fecha_hora }}</td>
+        </tr>
+        <tr>
+          <td>Cajero</td>
+          <td class="der">{{ venta.usuario }}</td>
+        </tr>
+      </table>
+      {% if venta.estado == "CANCELADA" %}
+        <div class="cancelada">VENTA CANCELADA</div>
+      {% endif %}
+      {% if copia %}
+        {# RF-VEN-16: la reimpresión se distingue del ticket original #}
+        <div class="centro">*** REIMPRESIÓN ***</div>
+        <div class="centro">{{ ahora|fecha_hora }}</div>
+      {% endif %}
+      <div class="separador"></div>
+      <table>
+        {% for d in detalles %}
+          <tr>
+            <td colspan="2">{{ d.producto.nombre }}</td>
+          </tr>
+          <tr>
+            <td>{{ d.cantidad }} x {{ d.precio_unitario|pesos }}</td>
+            <td class="der">{{ d.subtotal|pesos }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+      <div class="separador"></div>
+      <table>
+        {% if venta.descuento %}
+          <tr>
+            <td>Subtotal</td>
+            <td class="der">{{ venta.subtotal|pesos }}</td>
+          </tr>
+          <tr>
+            <td>Descuento</td>
+            <td class="der">-{{ venta.descuento|pesos }}</td>
+          </tr>
+        {% endif %}
+        <tr class="total">
+          <td>TOTAL</td>
+          <td class="der">{{ venta.total|pesos }}</td>
+        </tr>
+        <tr>
+          <td>IVA incluido ({{ negocio.tasa_impuesto|default:"16"|floatformat:"-2" }}%)</td>
+          <td class="der">{{ venta.impuesto|pesos }}</td>
+        </tr>
+        <tr>
+          <td>Efectivo</td>
+          <td class="der">{{ venta.monto_recibido|pesos }}</td>
+        </tr>
+        <tr>
+          <td>Cambio</td>
+          <td class="der">{{ venta.cambio|pesos }}</td>
+        </tr>
+      </table>
+      <div class="separador"></div>
+      <div class="centro">
+        {% with piezas=detalles|length %}{{ piezas }} artículo{{ piezas|pluralize }}{% endwith %}
+      </div>
+      {% if negocio.mensaje_ticket %}<div class="centro" style="margin-top:6px;">{{ negocio.mensaje_ticket }}</div>{% endif %}
+    </div>
+    <div class="acciones">
+      <button onclick="window.print()">Imprimir</button>
+      <a href="?ancho=58{% if copia %}&copia=1{% endif %}">58 mm</a>
+      <a href="?ancho=80{% if copia %}&copia=1{% endif %}">80 mm</a>
+    </div>
+    {% if imprimir %}
+      <script>window.addEventListener("load", function () { window.print(); });</script>
+    {% endif %}
+  </body>
+</html>

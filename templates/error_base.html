@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block titulo %}Error{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sistema.css' %}?v={{ v }}">
+  </head>
+  <body class="pantalla-acceso">
+    <main class="tarjeta-acceso text-center">
+      <p class="display-5 fw-semibold mb-2">{% block codigo %}{% endblock %}</p>
+      <h1 class="h5 mb-2">{% block mensaje %}{% endblock %}</h1>
+      <p class="text-secondary mb-4">{% block detalle %}{% endblock %}</p>
+      <a href="/" class="btn btn-primary">Volver al inicio</a>
+    </main>
+  </body>
+</html>
