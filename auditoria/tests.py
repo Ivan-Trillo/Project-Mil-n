@@ -115,3 +115,36 @@ class ThreeDotsTests(TestCase):
         self.assertFalse(modelo_admin.has_change_permission(None))
         self.assertFalse(modelo_admin.has_delete_permission(None))
         self.assertEqual(RegistroAuditoria.objects.count(), total)
+
+    def test_rf_aud_01_proveedores_en_la_bitacora(self):
+        from productos.models import Proveedor
+        self.client.post(reverse("proveedores:nuevo"), {"nombre": "Bimbo", "contacto": "Luis", "telefono": "6671234567"})
+        proveedor = Proveedor.objects.get(nombre="Bimbo")
+        self.client.post(reverse("proveedores:editar", args=[proveedor.pk]), {"nombre": "Bimbo", "contacto": "Ana", "telefono": "6671234567"})
+        self.client.post(reverse("proveedores:estado", args=[proveedor.pk]))
+        acciones = list(
+            RegistroAuditoria.objects.filter(elemento="Proveedor Bimbo").order_by("fecha", "pk").values_list("accion", flat=True)
+        )
+        self.assertEqual(acciones, [RegistroAuditoria.PROVEEDOR_ALTA, RegistroAuditoria.PROVEEDOR_EDICION, RegistroAuditoria.PROVEEDOR_ESTADO])
+        edicion = RegistroAuditoria.objects.get(accion=RegistroAuditoria.PROVEEDOR_EDICION)
+        self.assertIn("Luis", edicion.valor_anterior)
+        self.assertIn("Ana", edicion.valor_nuevo)
+
+    def test_rf_aud_01_venta_con_descuento_en_la_bitacora(self):
+        import json
+        from decimal import Decimal
+        from productos.models import Producto
+        from ventas import servicios
+        Producto.objects.create(sku="PAN1", codigo_barras="7500000000001", nombre="Pan", precio_venta=Decimal("50.00"), existencia=10)
+        venta = servicios.nuevo_ticket(self.admin)
+
+        def post(nombre, datos):
+            return self.client.post(reverse(nombre, kwargs={"pk": venta.pk}), json.dumps(datos), content_type="application/json")
+
+        post("ventas:api_agregar", {"codigo": "2*7500000000001"})
+        post("ventas:api_descuento", {"monto": "10"})
+        post("ventas:api_cobrar", {"monto_recibido": "100"})
+        registro = RegistroAuditoria.objects.get(accion=RegistroAuditoria.VENTA_DESCUENTO)
+        self.assertIn("100.00", registro.valor_anterior)
+        self.assertIn("10.00", registro.valor_nuevo)
+        self.assertIn("90.00", registro.valor_nuevo)

@@ -1,0 +1,185 @@
+Creating test database for alias 'default' ('test_milan')...
+Found 125 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: humanize, messages, staticfiles
+  Apply all migrations: admin, auditoria, auth, configuracion, contenttypes, cuentas, productos, sessions, ventas
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying cuentas.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying auditoria.0001_initial... OK
+  Applying auditoria.0002_acciones_proveedores_descuento... OK
+  Applying configuracion.0001_initial... OK
+  Applying cuentas.0002_crear_roles... OK
+  Applying cuentas.0003_usuario_bloqueado_hasta_usuario_intentos_fallidos... OK
+  Applying productos.0001_initial... OK
+  Applying ventas.0001_initial... OK
+  Applying productos.0002_initial... OK
+  Applying productos.0003_proveedor_producto_imagen_producto_proveedor... OK
+  Applying sessions.0001_initial... OK
+  Applying ventas.0002_venta_descuento_venta_subtotal_and_more...test_exportar_csv (auditoria.tests.ThreeDotsTests.test_exportar_csv) ... ok
+test_filtro_por_accion (auditoria.tests.ThreeDotsTests.test_filtro_por_accion) ... ok
+test_filtro_por_categoria (auditoria.tests.ThreeDotsTests.test_filtro_por_categoria) ... ok
+test_filtro_por_fecha (auditoria.tests.ThreeDotsTests.test_filtro_por_fecha) ... ok
+test_filtro_por_usuario_y_busqueda (auditoria.tests.ThreeDotsTests.test_filtro_por_usuario_y_busqueda) ... ok
+test_menu_three_dots_solo_para_admin (auditoria.tests.ThreeDotsTests.test_menu_three_dots_solo_para_admin) ... ok
+test_post_de_otro_rol_sigue_dando_404 (auditoria.tests.ThreeDotsTests.test_post_de_otro_rol_sigue_dando_404) ... ok
+test_rf_aud_01_proveedores_en_la_bitacora (auditoria.tests.ThreeDotsTests.test_rf_aud_01_proveedores_en_la_bitacora) ... FAIL
+test_rf_aud_01_venta_con_descuento_en_la_bitacora (auditoria.tests.ThreeDotsTests.test_rf_aud_01_venta_con_descuento_en_la_bitacora) ... ok
+test_rf_aud_03_muestra_eventos_con_valores (auditoria.tests.ThreeDotsTests.test_rf_aud_03_muestra_eventos_con_valores) ... ok
+test_rf_aud_04_solo_lectura (auditoria.tests.ThreeDotsTests.test_rf_aud_04_solo_lectura)
+La pantalla no acepta POST y el admin de Django no deja editar ni borrar. ... ok
+test_rf_aud_05_solo_el_administrador_la_ve (auditoria.tests.ThreeDotsTests.test_rf_aud_05_solo_el_administrador_la_ve) ... ok
+test_cajero_no_puede_entrar (configuracion.tests.ConfiguracionTests.test_cajero_no_puede_entrar) ... ok
+test_cambio_queda_en_bitacora (configuracion.tests.ConfiguracionTests.test_cambio_queda_en_bitacora) ... ok
+test_cp_cfg_01_guardar_datos (configuracion.tests.ConfiguracionTests.test_cp_cfg_01_guardar_datos) ... ok
+test_cp_cfg_04_admin_sin_configuracion_es_redirigido (configuracion.tests.ConfiguracionTests.test_cp_cfg_04_admin_sin_configuracion_es_redirigido) ... ok
+test_cp_cfg_04_cajero_no_es_redirigido (configuracion.tests.ConfiguracionTests.test_cp_cfg_04_cajero_no_es_redirigido) ... ok
+test_rfc_invalido (configuracion.tests.ConfiguracionTests.test_rfc_invalido) ... ok
+test_tasa_fuera_de_rango (configuracion.tests.ConfiguracionTests.test_tasa_fuera_de_rango) ... ok
+test_un_solo_registro (configuracion.tests.ConfiguracionTests.test_un_solo_registro) ... ok
+test_cambio_obligatorio_redirige (cuentas.tests.CambioPasswordTests.test_cambio_obligatorio_redirige) ... ok
+test_contrasena_corta_rechazada (cuentas.tests.CambioPasswordTests.test_contrasena_corta_rechazada) ... ok
+test_cp_aut_06_cambiar_propia_contrasena (cuentas.tests.CambioPasswordTests.test_cp_aut_06_cambiar_propia_contrasena) ... ok
+test_alta_contrasena_debil_o_distinta (cuentas.tests.EmpleadosTests.test_alta_contrasena_debil_o_distinta) ... ok
+test_alta_usuario_repetido (cuentas.tests.EmpleadosTests.test_alta_usuario_repetido) ... ok
+test_cp_usr_01_alta_con_rol_y_contrasena_temporal (cuentas.tests.EmpleadosTests.test_cp_usr_01_alta_con_rol_y_contrasena_temporal) ... ok
+test_cp_usr_03_cambiar_rol (cuentas.tests.EmpleadosTests.test_cp_usr_03_cambiar_rol) ... ok
+test_cp_usr_04_desactivar_y_reactivar (cuentas.tests.EmpleadosTests.test_cp_usr_04_desactivar_y_reactivar) ... ok
+test_cp_usr_05_restablecer_contrasena (cuentas.tests.EmpleadosTests.test_cp_usr_05_restablecer_contrasena) ... ok
+test_desactivado_pierde_su_sesion (cuentas.tests.EmpleadosTests.test_desactivado_pierde_su_sesion) ... ok
+test_desbloquear (cuentas.tests.EmpleadosTests.test_desbloquear) ... ok
+test_lista_y_filtros (cuentas.tests.EmpleadosTests.test_lista_y_filtros) ... ok
+test_no_cambia_el_nombre_de_usuario (cuentas.tests.EmpleadosTests.test_no_cambia_el_nombre_de_usuario) ... ok
+test_no_puede_cambiar_su_propio_rol (cuentas.tests.EmpleadosTests.test_no_puede_cambiar_su_propio_rol) ... ok
+test_no_se_desactiva_a_si_mismo (cuentas.tests.EmpleadosTests.test_no_se_desactiva_a_si_mismo) ... ok
+test_nuevo_empleado_debe_cambiar_contrasena_al_entrar (cuentas.tests.EmpleadosTests.test_nuevo_empleado_debe_cambiar_contrasena_al_entrar) ... ok
+test_restablecer_contrasena_invalida (cuentas.tests.EmpleadosTests.test_restablecer_contrasena_invalida) ... ok
+test_siempre_queda_un_administrador (cuentas.tests.EmpleadosTests.test_siempre_queda_un_administrador) ... ok
+test_solo_el_administrador_entra (cuentas.tests.EmpleadosTests.test_solo_el_administrador_entra) ... ok
+test_cp_aut_01_credenciales_invalidas_mensaje_generico (cuentas.tests.InicioSesionTests.test_cp_aut_01_credenciales_invalidas_mensaje_generico) ... ok
+test_cp_aut_01_credenciales_validas (cuentas.tests.InicioSesionTests.test_cp_aut_01_credenciales_validas) ... ok
+test_cp_aut_02_cerrar_sesion (cuentas.tests.InicioSesionTests.test_cp_aut_02_cerrar_sesion) ... ok
+test_cp_aut_04_bloqueo_expira (cuentas.tests.InicioSesionTests.test_cp_aut_04_bloqueo_expira) ... ok
+test_cp_aut_04_bloqueo_tras_5_intentos (cuentas.tests.InicioSesionTests.test_cp_aut_04_bloqueo_tras_5_intentos) ... ok
+test_usuario_inactivo_no_entra (cuentas.tests.InicioSesionTests.test_usuario_inactivo_no_entra) ... ok
+test_cp_aut_03_admin_si_entra (cuentas.tests.PermisosTests.test_cp_aut_03_admin_si_entra) ... ok
+test_cp_aut_03_cajero_recibe_403 (cuentas.tests.PermisosTests.test_cp_aut_03_cajero_recibe_403) ... ok
+test_pagina_oculta_responde_404 (cuentas.tests.PermisosTests.test_pagina_oculta_responde_404) ... ok
+test_cajero_no_ve_el_dashboard (panel.tests.DashboardTests.test_cajero_no_ve_el_dashboard) ... ok
+test_canceladas_y_pendientes_no_cuentan (panel.tests.DashboardTests.test_canceladas_y_pendientes_no_cuentan) ... ok
+test_dashboard_sin_ventas (panel.tests.DashboardTests.test_dashboard_sin_ventas) ... ok
+test_encargado_llega_al_dashboard (panel.tests.DashboardTests.test_encargado_llega_al_dashboard) ... ok
+test_fechas_en_espanol_aunque_el_navegador_este_en_ingles (panel.tests.DashboardTests.test_fechas_en_espanol_aunque_el_navegador_este_en_ingles) ... ok
+test_mas_vendidos (panel.tests.DashboardTests.test_mas_vendidos) ... ok
+test_pantalla_del_dashboard (panel.tests.DashboardTests.test_pantalla_del_dashboard) ... ok
+test_resumen_del_dia (panel.tests.DashboardTests.test_resumen_del_dia) ... ok
+test_rf_das_03_existencia_baja (panel.tests.DashboardTests.test_rf_das_03_existencia_baja) ... ok
+test_variacion_contra_ayer (panel.tests.DashboardTests.test_variacion_contra_ayer) ... ok
+test_variacion_se_muestra_bien (panel.tests.DashboardTests.test_variacion_se_muestra_bien)
+Ningún pedazo de código de la plantilla debe aparecer en la pantalla. ... ok
+test_ventas_por_dia_incluye_dias_vacios (panel.tests.DashboardTests.test_ventas_por_dia_incluye_dias_vacios) ... ok
+test_cajero_no_puede_registrar (productos.tests.AltaProductoTests.test_cajero_no_puede_registrar) ... ok
+test_cp_pro_01_registrar_producto (productos.tests.AltaProductoTests.test_cp_pro_01_registrar_producto) ... ok
+test_cp_pro_02_codigo_y_sku_unicos (productos.tests.AltaProductoTests.test_cp_pro_02_codigo_y_sku_unicos) ... ok
+test_cp_pro_03_validaciones (productos.tests.AltaProductoTests.test_cp_pro_03_validaciones) ... ok
+test_varios_productos_sin_codigo (productos.tests.AltaProductoTests.test_varios_productos_sin_codigo) ... ok
+test_cajero_ve_catalogo_sin_inactivos (productos.tests.CatalogoTests.test_cajero_ve_catalogo_sin_inactivos) ... ok
+test_cp_pro_04_busqueda (productos.tests.CatalogoTests.test_cp_pro_04_busqueda) ... ok
+test_cp_pro_04_filtro_categoria (productos.tests.CatalogoTests.test_cp_pro_04_filtro_categoria) ... ok
+test_cp_pro_06_inactivos_ocultos (productos.tests.CatalogoTests.test_cp_pro_06_inactivos_ocultos) ... ok
+test_cp_pro_10_existencia_baja (productos.tests.CatalogoTests.test_cp_pro_10_existencia_baja) ... ok
+test_cajero_no_ve_proveedores (productos.tests.CategoriasProveedoresTests.test_cajero_no_ve_proveedores) ... ok
+test_cp_pro_07_categorias (productos.tests.CategoriasProveedoresTests.test_cp_pro_07_categorias) ... ok
+test_proveedores (productos.tests.CategoriasProveedoresTests.test_proveedores) ... ok
+test_cp_pro_05_cambio_de_precio_en_bitacora (productos.tests.EdicionTests.test_cp_pro_05_cambio_de_precio_en_bitacora) ... ok
+test_cp_pro_06_baja_y_reactivacion (productos.tests.EdicionTests.test_cp_pro_06_baja_y_reactivacion) ... ok
+test_editar_no_cambia_existencia (productos.tests.EdicionTests.test_editar_no_cambia_existencia) ... ok
+test_ajuste_sin_motivo_rechazado (productos.tests.MovimientosTests.test_ajuste_sin_motivo_rechazado) ... ok
+test_cp_pro_08_ajuste_negativo (productos.tests.MovimientosTests.test_cp_pro_08_ajuste_negativo) ... ok
+test_cp_pro_08_entrada (productos.tests.MovimientosTests.test_cp_pro_08_entrada) ... ok
+test_cp_pro_09_historial_en_ficha (productos.tests.MovimientosTests.test_cp_pro_09_historial_en_ficha) ... ok
+test_no_permite_existencia_negativa (productos.tests.MovimientosTests.test_no_permite_existencia_negativa) ... ok
+test_cajero_entra_directo_a_la_caja (ventas.tests.ApiCajaTests.test_cajero_entra_directo_a_la_caja) ... ok
+test_cajero_no_ve_tickets_de_otros (ventas.tests.ApiCajaTests.test_cajero_no_ve_tickets_de_otros) ... ok
+test_cp_ven_02_aviso_no_encontrado (ventas.tests.ApiCajaTests.test_cp_ven_02_aviso_no_encontrado) ... ok
+test_cp_ven_03_busqueda_por_nombre (ventas.tests.ApiCajaTests.test_cp_ven_03_busqueda_por_nombre) ... ok
+test_cp_ven_09_varios_tickets (ventas.tests.ApiCajaTests.test_cp_ven_09_varios_tickets) ... ok
+test_cp_ven_10_pendiente_se_conserva (ventas.tests.ApiCajaTests.test_cp_ven_10_pendiente_se_conserva) ... ok
+test_descartar_ticket (ventas.tests.ApiCajaTests.test_descartar_ticket) ... ok
+test_flujo_completo (ventas.tests.ApiCajaTests.test_flujo_completo) ... ok
+test_no_puede_tocar_ticket_de_otro (ventas.tests.ApiCajaTests.test_no_puede_tocar_ticket_de_otro) ... ok
+test_ticket_se_puede_imprimir_desde_la_caja (ventas.tests.ApiCajaTests.test_ticket_se_puede_imprimir_desde_la_caja) ... ok
+test_buscar_por_folio_en_todas_las_fechas (ventas.tests.RegistroTests.test_buscar_por_folio_en_todas_las_fechas) ... ok
+test_cajero_no_puede_cancelar_ni_ver_registro (ventas.tests.RegistroTests.test_cajero_no_puede_cancelar_ni_ver_registro) ... ok
+test_cancelacion_atomica (ventas.tests.RegistroTests.test_cancelacion_atomica)
+Si falla algo a la mitad, la venta sigue pagada y el inventario no cambia. ... ok
+test_cancelacion_queda_en_la_bitacora (ventas.tests.RegistroTests.test_cancelacion_queda_en_la_bitacora) ... ok
+test_cancelacion_sin_motivo_no_procede (ventas.tests.RegistroTests.test_cancelacion_sin_motivo_no_procede) ... ok
+test_canceladas_no_suman_al_total (ventas.tests.RegistroTests.test_canceladas_no_suman_al_total) ... ok
+test_cancelar_requiere_post (ventas.tests.RegistroTests.test_cancelar_requiere_post) ... ok
+test_detalle_de_venta (ventas.tests.RegistroTests.test_detalle_de_venta) ... ok
+test_detalle_de_venta_cancelada (ventas.tests.RegistroTests.test_detalle_de_venta_cancelada) ... ok
+test_filtro_por_rango_y_cajero (ventas.tests.RegistroTests.test_filtro_por_rango_y_cajero) ... ok
+test_historial_muestra_ventas_de_hoy (ventas.tests.RegistroTests.test_historial_muestra_ventas_de_hoy) ... ok
+test_historial_no_muestra_pendientes (ventas.tests.RegistroTests.test_historial_no_muestra_pendientes) ... ok
+test_menu_registro_no_se_marca_en_la_caja (ventas.tests.RegistroTests.test_menu_registro_no_se_marca_en_la_caja) ... ok
+test_no_se_cancela_dos_veces (ventas.tests.RegistroTests.test_no_se_cancela_dos_veces) ... ok
+test_producto_dado_de_baja_tambien_regresa (ventas.tests.RegistroTests.test_producto_dado_de_baja_tambien_regresa) ... ok
+test_reimpresion_de_cancelada (ventas.tests.RegistroTests.test_reimpresion_de_cancelada) ... ok
+test_rf_ven_16_reimpresion_lleva_leyenda (ventas.tests.RegistroTests.test_rf_ven_16_reimpresion_lleva_leyenda) ... ok
+test_rf_ven_17_cancelar_regresa_inventario (ventas.tests.RegistroTests.test_rf_ven_17_cancelar_regresa_inventario) ... ok
+test_ticket_pendiente_no_se_cancela (ventas.tests.RegistroTests.test_ticket_pendiente_no_se_cancela) ... ok
+test_cp_ven_01_agregar_por_codigo (ventas.tests.ServiciosTests.test_cp_ven_01_agregar_por_codigo) ... ok
+test_cp_ven_02_codigo_inexistente (ventas.tests.ServiciosTests.test_cp_ven_02_codigo_inexistente) ... ok
+test_cp_ven_04_agregar_varios (ventas.tests.ServiciosTests.test_cp_ven_04_agregar_varios) ... ok
+test_cp_ven_05_06_cambiar_y_borrar (ventas.tests.ServiciosTests.test_cp_ven_05_06_cambiar_y_borrar) ... ok
+test_cp_ven_07_no_supera_existencia (ventas.tests.ServiciosTests.test_cp_ven_07_no_supera_existencia) ... ok
+test_cp_ven_08_totales_e_iva_incluido (ventas.tests.ServiciosTests.test_cp_ven_08_totales_e_iva_incluido) ... ok
+test_cp_ven_11_cobro_y_cambio (ventas.tests.ServiciosTests.test_cp_ven_11_cobro_y_cambio) ... ok
+test_cp_ven_12_monto_insuficiente (ventas.tests.ServiciosTests.test_cp_ven_12_monto_insuficiente) ... ok
+test_cp_ven_13_cobro_atomico (ventas.tests.ServiciosTests.test_cp_ven_13_cobro_atomico)
+Si falla algo a la mitad del cobro no queda ni la venta ni el descuento de inventario. ... ok
+test_cp_ven_15_folios_consecutivos (ventas.tests.ServiciosTests.test_cp_ven_15_folios_consecutivos) ... ok
+test_descuento (ventas.tests.ServiciosTests.test_descuento) ... ok
+test_existencia_vendida_por_otra_caja (ventas.tests.ServiciosTests.test_existencia_vendida_por_otra_caja)
+RNF-CON-03: si otra caja vendió antes, el cobro se rechaza y no deja negativos. ... ok
+test_precio_se_conserva_en_venta (ventas.tests.ServiciosTests.test_precio_se_conserva_en_venta)
+RNF-BD-04: cambiar el precio después no altera la venta. ... ok
+test_producto_inactivo_no_se_vende (ventas.tests.ServiciosTests.test_producto_inactivo_no_se_vende) ... ok
+test_rf_cfg_02_iva_116 (ventas.tests.ServiciosTests.test_rf_cfg_02_iva_116) ... ok
+
+======================================================================
+FAIL: test_rf_aud_01_proveedores_en_la_bitacora (auditoria.tests.ThreeDotsTests.test_rf_aud_01_proveedores_en_la_bitacora)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/it/Desktop/milan/auditoria/tests.py", line 130, in test_rf_aud_01_proveedores_en_la_bitacora
+    self.assertIn("Luis", edicion.valor_anterior)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Luis' not found in 'Persona de contacto: Ana'
+
+----------------------------------------------------------------------
+Ran 125 tests in 43.405s
+
+FAILED (failures=1)
+Destroying test database for alias 'default' ('test_milan')...
+ OK
+System check identified no issues (0 silenced).

@@ -169,6 +169,13 @@ def api_descuento(request, pk):
 def api_cobrar(request, pk):
     venta = servicios.obtener_ticket(request.user, pk)
     venta = servicios.cobrar(venta, _decimal(_datos(request).get("monto_recibido")))
+    #RF-AUD-01: una venta cobrada con descuento queda en la bitacora
+    if venta.descuento > 0:
+        registrar(
+            request, RegistroAuditoria.VENTA_DESCUENTO, elemento=f"Venta {venta.folio_texto}",
+            anterior=f"Subtotal: {venta.subtotal}",
+            nuevo=f"Descuento: {venta.descuento}, total cobrado: {venta.total}",
+        )
     # Después de cobrar se abre un ticket nuevo si ya no queda ninguno
     return _respuesta(
         request,

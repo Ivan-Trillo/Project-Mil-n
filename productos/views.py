@@ -221,7 +221,20 @@ def proveedor_form(request, pk=None):
     proveedor = get_object_or_404(Proveedor, pk=pk) if pk else None
     form = ProveedorForm(request.POST or None, instance=proveedor)
     if request.method == "POST" and form.is_valid():
+        es_nuevo = proveedor is None
+        #se toma de form.initial porque al validar Django ya le puso los datos nuevos al objeto
+        antes = {c: form.initial.get(c) for c in form.changed_data} if proveedor else {}
         proveedor = form.save()
+        #RF-AUD-01: alta y edicion de proveedores quedan en la bitacora
+        if es_nuevo:
+            registrar(request, RegistroAuditoria.PROVEEDOR_ALTA, elemento=f"Proveedor {proveedor}",
+                      nuevo=f"Contacto: {proveedor.contacto or '-'}, teléfono: {proveedor.telefono or '-'}")
+        elif form.changed_data:
+            registrar(
+                request, RegistroAuditoria.PROVEEDOR_EDICION, elemento=f"Proveedor {proveedor}",
+                anterior="\n".join(f"{form.fields[c].label}: {antes[c] or ''}" for c in form.changed_data),
+                nuevo="\n".join(f"{form.fields[c].label}: {form.cleaned_data[c] or ''}" for c in form.changed_data),
+            )
         messages.success(request, f"Proveedor «{proveedor}» guardado.")
         return redirect("proveedores:lista")
     return render(request, "productos/proveedor_form.html", {"form": form, "proveedor": proveedor})
@@ -233,5 +246,10 @@ def proveedor_estado(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
     proveedor.activo = not proveedor.activo
     proveedor.save(update_fields=["activo"])
+    registrar(
+        request, RegistroAuditoria.PROVEEDOR_ESTADO, elemento=f"Proveedor {proveedor}",
+        anterior="Inactivo" if proveedor.activo else "Activo",
+        nuevo="Activo" if proveedor.activo else "Inactivo",
+    )
     messages.success(request, f"Proveedor «{proveedor}» {'activado' if proveedor.activo else 'desactivado'}.")
     return redirect("proveedores:lista")

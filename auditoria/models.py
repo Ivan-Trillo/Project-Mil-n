@@ -23,6 +23,10 @@ class RegistroAuditoria(models.Model):
     USUARIO_EDICION = "USUARIO_EDICION"
     USUARIO_ESTADO = "USUARIO_ESTADO"
     USUARIO_PASSWORD = "USUARIO_PASSWORD"
+    PROVEEDOR_ALTA = "PROVEEDOR_ALTA"
+    PROVEEDOR_EDICION = "PROVEEDOR_EDICION"
+    PROVEEDOR_ESTADO = "PROVEEDOR_ESTADO"
+    VENTA_DESCUENTO = "VENTA_DESCUENTO"
     ACCIONES = [
         (LOGIN_OK, "Inicio de sesión"),
         (LOGIN_FALLIDO, "Inicio de sesión fallido"),
@@ -38,6 +42,10 @@ class RegistroAuditoria(models.Model):
         (USUARIO_EDICION, "Edición de usuario"),
         (USUARIO_ESTADO, "Activación o desactivación de usuario"),
         (USUARIO_PASSWORD, "Restablecimiento de contraseña"),
+        (PROVEEDOR_ALTA, "Alta de proveedor"),
+        (PROVEEDOR_EDICION, "Edición de proveedor"),
+        (PROVEEDOR_ESTADO, "Activación o desactivación de proveedor"),
+        (VENTA_DESCUENTO, "Venta con descuento"),
     ]
 
     fecha = models.DateTimeField("fecha y hora", auto_now_add=True, db_index=True)
@@ -69,12 +77,13 @@ class RegistroAuditoria(models.Model):
         ("sesiones", "Sesiones", "bi-box-arrow-in-right", (LOGIN_OK, LOGIN_FALLIDO, LOGOUT)),
         ("productos", "Productos e inventario", "bi-box-seam",
          (PRODUCTO_ALTA, PRODUCTO_EDICION, PRODUCTO_BAJA, CAMBIO_PRECIO, INVENTARIO_AJUSTE)),
-        ("ventas", "Ventas", "bi-receipt", (VENTA_CANCELACION,)),
+        ("ventas", "Ventas", "bi-receipt", (VENTA_CANCELACION, VENTA_DESCUENTO)),
+        ("proveedores", "Proveedores", "bi-truck", (PROVEEDOR_ALTA, PROVEEDOR_EDICION, PROVEEDOR_ESTADO)),
         ("usuarios", "Empleados", "bi-people", (USUARIO_ALTA, USUARIO_EDICION, USUARIO_ESTADO, USUARIO_PASSWORD)),
         ("configuracion", "Configuración", "bi-gear", (CONFIGURACION,)),
     ]
     #acciones pendientes a revisar
-    ALERTAS = (LOGIN_FALLIDO, VENTA_CANCELACION, CAMBIO_PRECIO, USUARIO_PASSWORD)
+    ALERTAS = (LOGIN_FALLIDO, VENTA_CANCELACION, VENTA_DESCUENTO, CAMBIO_PRECIO, USUARIO_PASSWORD)
 
     def __str__(self):
         return f"{self.fecha:%d/%m/%Y %H:%M} {self.get_accion_display()}"
