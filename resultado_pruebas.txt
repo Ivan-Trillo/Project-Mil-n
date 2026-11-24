@@ -42,7 +42,7 @@ test_filtro_por_fecha (auditoria.tests.ThreeDotsTests.test_filtro_por_fecha) ...
 test_filtro_por_usuario_y_busqueda (auditoria.tests.ThreeDotsTests.test_filtro_por_usuario_y_busqueda) ... ok
 test_menu_three_dots_solo_para_admin (auditoria.tests.ThreeDotsTests.test_menu_three_dots_solo_para_admin) ... ok
 test_post_de_otro_rol_sigue_dando_404 (auditoria.tests.ThreeDotsTests.test_post_de_otro_rol_sigue_dando_404) ... ok
-test_rf_aud_01_proveedores_en_la_bitacora (auditoria.tests.ThreeDotsTests.test_rf_aud_01_proveedores_en_la_bitacora) ... FAIL
+test_rf_aud_01_proveedores_en_la_bitacora (auditoria.tests.ThreeDotsTests.test_rf_aud_01_proveedores_en_la_bitacora) ... ok
 test_rf_aud_01_venta_con_descuento_en_la_bitacora (auditoria.tests.ThreeDotsTests.test_rf_aud_01_venta_con_descuento_en_la_bitacora) ... ok
 test_rf_aud_03_muestra_eventos_con_valores (auditoria.tests.ThreeDotsTests.test_rf_aud_03_muestra_eventos_con_valores) ... ok
 test_rf_aud_04_solo_lectura (auditoria.tests.ThreeDotsTests.test_rf_aud_04_solo_lectura)
@@ -167,19 +167,10 @@ RNF-BD-04: cambiar el precio después no altera la venta. ... ok
 test_producto_inactivo_no_se_vende (ventas.tests.ServiciosTests.test_producto_inactivo_no_se_vende) ... ok
 test_rf_cfg_02_iva_116 (ventas.tests.ServiciosTests.test_rf_cfg_02_iva_116) ... ok
 
-======================================================================
-FAIL: test_rf_aud_01_proveedores_en_la_bitacora (auditoria.tests.ThreeDotsTests.test_rf_aud_01_proveedores_en_la_bitacora)
 ----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/Users/it/Desktop/milan/auditoria/tests.py", line 130, in test_rf_aud_01_proveedores_en_la_bitacora
-    self.assertIn("Luis", edicion.valor_anterior)
-    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 'Luis' not found in 'Persona de contacto: Ana'
+Ran 125 tests in 41.414s
 
-----------------------------------------------------------------------
-Ran 125 tests in 43.405s
-
-FAILED (failures=1)
+OK
 Destroying test database for alias 'default' ('test_milan')...
  OK
 System check identified no issues (0 silenced).
